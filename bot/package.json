@@ -4,16 +4,23 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha  --require ts-node/register --recursive \"./src/**/*.spec.ts\"",
     "build": "tsc && cp package.json dist/"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "pigpio": "^1.1.0"
+    "pigpio": "^1.1.0",
+    "ramda": "^0.25.0"
   },
   "devDependencies": {
+    "@types/chai": "^4.1.4",
+    "@types/mocha": "^5.2.2",
     "@types/pigpio": "^0.4.1",
+    "@types/ramda": "^0.25.33",
+    "chai": "^4.1.2",
+    "mocha": "^5.2.0",
+    "ts-node": "^6.1.1",
     "typescript": "^2.9.1"
   }
 }
