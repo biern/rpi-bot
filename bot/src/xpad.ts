@@ -66,6 +66,35 @@ export const parseState = (state: string): XPadState => {
 };
 
 
+export const toXboxState = (state: XPadState): XPadState => {
+  return R.pipe<XPadState, XPadState, XPadState>(
+    R.evolve({
+      axes: R.map((value: number) => value / 32767) as any,
+    }),
+    R.evolve({
+      axes: {
+        2: (v: number) => v / 2 + 0.5,
+        5: (v: number) => v / 2 + 0.5,
+      }
+    }),
+  )(state);
+};
+
+
+export const applyDeadzone = (deadzone: number) => (state: XPadState): XPadState =>
+  R.evolve({
+    axes: R.map(
+      (value: number) => {
+        if (value > 0) {
+          return R.max(0, value - deadzone) / (1 - deadzone);
+        } else {
+          return R.min(0, value + deadzone) / (1 - deadzone);
+        }
+      },
+    ) as any,
+  }, state)
+
+
 export const buildXpadStream = (
   onLine: (state: XPadState) => void,
 ) => {
