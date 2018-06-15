@@ -3,12 +3,12 @@ import { DCController } from "./dc";
 
 export const setMultiAxesDCPower = (
   controls: DCController,
-  forwardAxes: number,
-  backwardAxes: number,
+  forwardAxis: number,
+  backwardAxis: number,
 ) => {
-  if (backwardAxes > 0) {
-    controls.setPower(backwardAxes, -1);
+  if (backwardAxis > 0) {
+    controls.setPower(backwardAxis, -1);
   } else {
-    controls.setPower(forwardAxes, 1);
+    controls.setPower(forwardAxis, 1);
   }
 };
