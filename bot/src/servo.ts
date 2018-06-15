@@ -31,7 +31,7 @@ export const setupServo = (servo: Servo) =>
 
 
 export const createServo = (motor: ServoMotor, pin: number): Servo => {
-  const gpio = new Gpio(18, { mode: Gpio.OUTPUT });
+  const gpio = new Gpio(pin, { mode: Gpio.OUTPUT });
   const servo = { gpio, motor };
   setupServo(servo);
   return servo;
