@@ -1,3 +1,8 @@
+export type DCMotor = {
+  frequency: number;
+}
+
+
 export type ServoMotor = {
   minPulseWidth: number;
   maxPulseWidth: number;
@@ -19,4 +24,9 @@ export const hd1800a: ServoMotor = {
   maxPulseWidth: 2500,
   frequency: 50,
   maxAngle: 90,
+};
+
+
+export const dc50hz: DCMotor = {
+  frequency: 50,
 };
