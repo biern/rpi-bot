@@ -1,4 +1,7 @@
+import * as readline from 'readline';
 import * as R from 'ramda';
+import * as fs from 'fs';
+import { spawn } from 'child_process';
 
 
 export type XPadState = {
@@ -60,4 +63,20 @@ export const parseState = (state: string): XPadState => {
     axes: R.fromPairs(axesPairs),
     buttons: R.fromPairs(buttonPairs),
   } as XPadState;
+};
+
+
+export const buildXpadStream = (
+  onLine: (state: XPadState) => void,
+) => {
+  const stream = spawn('jstest', ['--normal', '/dev/input/js0'])
+
+  const rl = readline.createInterface(stream.stdout);
+
+  rl.on('line', (line: string) => {
+    const state = R.tryCatch(parseState, R.always(undefined))(line);
+    if (state) {
+      onLine(state);
+    }
+  });
 };
