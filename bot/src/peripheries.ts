@@ -8,7 +8,7 @@ export type ServoMotor = {
 
 export const towerPro: ServoMotor = {
   minPulseWidth: 500,
-  maxPulseWidth: 2400,
+  maxPulseWidth: 2200,
   frequency: 50,
   maxAngle: 90,
 };
