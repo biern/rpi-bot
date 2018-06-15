@@ -17,12 +17,22 @@ export const setAngle = ({ motor, gpio }: Servo, angle: number) => {
   const zeroAngle = angle + motor.maxAngle;
   const dutyCyclePercent = zeroAngle / (motor.maxAngle * 2);
   const dutyCycle =
-    (motor.maxPulseWidth - motor.minPulseWidth)
-    * dutyCyclePercent
-    + motor.minPulseWidth;
+    Math.floor(
+      (motor.maxPulseWidth - motor.minPulseWidth)
+        * dutyCyclePercent
+        + motor.minPulseWidth
+    );
   gpio.servoWrite(dutyCycle);
 }
 
 
 export const setupServo = (servo: Servo) =>
   servo.gpio.pwmFrequency(servo.motor.frequency);
+
+
+export const createServo = (motor: ServoMotor, pin: number): Servo => {
+  const gpio = new Gpio(18, { mode: Gpio.OUTPUT });
+  const servo = { gpio, motor };
+  setupServo(servo);
+  return servo;
+};
