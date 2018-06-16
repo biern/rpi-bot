@@ -1,5 +1,6 @@
 import * as R from 'ramda';
 
+import '../bot';
 import { buildXpadStream, toXboxState, applyDeadzone } from 'src/xpad';
 
 

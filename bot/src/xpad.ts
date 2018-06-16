@@ -102,6 +102,11 @@ export const buildXpadStream = (callbacks: {
 
   const rl = readline.createInterface(stream.stdout);
 
+  stream.on('exit', () => {
+    console.error('jstest process exited');
+    callbacks.onQuit();
+  });
+
   rl.on('line', (line: string) => {
     const state = R.tryCatch(parseState, R.always(undefined))(line);
     if (state) {
