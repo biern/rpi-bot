@@ -1,6 +1,5 @@
 import * as readline from 'readline';
 import * as R from 'ramda';
-import * as fs from 'fs';
 import { spawn } from 'child_process';
 
 
@@ -95,9 +94,10 @@ export const applyDeadzone = (deadzone: number) => (state: XPadState): XPadState
   }, state)
 
 
-export const buildXpadStream = (
-  onLine: (state: XPadState) => void,
-) => {
+export const buildXpadStream = (callbacks: {
+  onState: (state: XPadState) => void,
+  onQuit: () => void,
+}) => {
   const stream = spawn('jstest', ['--normal', '/dev/input/js0'])
 
   const rl = readline.createInterface(stream.stdout);
@@ -105,7 +105,13 @@ export const buildXpadStream = (
   rl.on('line', (line: string) => {
     const state = R.tryCatch(parseState, R.always(undefined))(line);
     if (state) {
-      onLine(state);
+      callbacks.onState(state);
+    } else {
+      if (line.search('error') >= 0) {
+        console.error(line)
+      }
     }
   });
+
+  rl.on('end', () => callbacks.onQuit());
 };

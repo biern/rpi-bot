@@ -4,13 +4,14 @@ import { buildXpadStream, toXboxState, applyDeadzone } from 'src/xpad';
 
 
 const run = async () => {
-  buildXpadStream(
-    R.pipe(
+  buildXpadStream({
+    onState: R.pipe(
       toXboxState,
       applyDeadzone(0.15),
       console.log,
     ),
-  );
+    onQuit: () => process.exit(1),
+  });
 }
 
 

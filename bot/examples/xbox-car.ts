@@ -21,13 +21,14 @@ const steer = (state: XPadState) => {
 
 
 const run = async () => {
-  buildXpadStream(
-    R.pipe(
+  buildXpadStream({
+    onState: R.pipe(
       toXboxState,
       applyDeadzone(0.15),
       steer,
     ),
-  );
+    onQuit: () => process.exit(1),
+  });
 }
 
 
