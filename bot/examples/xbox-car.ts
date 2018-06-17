@@ -10,20 +10,10 @@ import { buildSteeringStream } from 'src/stream';
 
 
 const steeringServo = createServo(towerPro, 18);
-
-
 const mainMotor = createABController(dc50hz, {a: 13, b: 6, pwm: 5})
 
 
-const steer = (state: XPadState) => {
+buildSteeringStream().subscribe(({ state }) => {
   setAngle(steeringServo, state.axes['0'] * 90);
   setMultiAxesDCPower(mainMotor, state.axes["5"], state.axes["2"]);
-};
-
-
-const run = async () => {
-  buildSteeringStream().subscribe(steer);
-}
-
-
-run().catch(console.error);
+});

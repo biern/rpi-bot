@@ -1,10 +1,29 @@
 import * as R from 'ramda';
 import * as Rx from 'rxjs';
-import { sampleTime, distinct, distinctUntilChanged, map } from 'rxjs/operators';
+import { sampleTime, distinctUntilChanged, map, pairwise } from 'rxjs/operators';
+
 import { XPadState, buildXpadStream, applyDeadzone } from './xpad';
 
 
-export const buildSteeringStream = (): Rx.Observable<XPadState> => {
+export type SteeringEvents = {
+  state: XPadState;
+  events: Event[];
+};
+
+
+export type Event =
+  {
+    kind: 'button';
+    id: string;
+    value: boolean;
+  } | {
+    kind: 'axis';
+    id: string;
+    value: number;
+  };
+
+
+export const buildSteeringStream = (): Rx.Observable<SteeringEvents> => {
   const steeringSubject = new Rx.Subject<XPadState>();
 
   buildXpadStream({
@@ -12,16 +31,41 @@ export const buildSteeringStream = (): Rx.Observable<XPadState> => {
     onQuit: () => process.exit(1),
   });
 
-  const steeringStream = steeringSubject.pipe(
+  const steeringStream: Rx.Observable<SteeringEvents> = steeringSubject.pipe(
     map(applyDeadzone(0.20)),
     distinctUntilChanged(R.equals),
+    toEvents,
   );
 
   steeringStream.pipe(
     sampleTime(500),
-  ).subscribe(console.log);
+  ).subscribe(({ events }) => console.log(events));
 
   return steeringStream.pipe(
     sampleTime(50),
   );
 };
+
+
+export const toEvents = (
+  stateStream: Rx.Observable<XPadState>
+): Rx.Observable<SteeringEvents> => {
+  const getEvents = (previous: XPadState, current: XPadState) => {
+    const axesEvents = R.reduce((events, [id, value]) => {
+      if ((previous as any).axes[id] !== value) {
+        return R.append({ kind: 'axis', id, value }, events);
+      }
+      return events;
+    }, [] as Event[], R.toPairs(current.axes));
+
+    return axesEvents;
+  }
+
+  return stateStream.pipe(
+    pairwise(),
+    map(([previous, current]) => ({
+      state: current,
+      events: getEvents(previous, current),
+    })),
+  );
+}
