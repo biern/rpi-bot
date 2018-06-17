@@ -48,7 +48,8 @@ export const parseState = (state: string): XPadState => {
   const buttonPairs =
     buttonsString
     .trim()
-    .split('  ')
+    .split(' ')
+    .filter((v) => v.trim())
     .map((pair) => pair.split(':'))
     .map(([key, value]) => [key, value === 'on']) as [keyof XPadState['buttons'], boolean][];
 
@@ -100,23 +101,28 @@ export const buildXpadStream = (callbacks: {
 }) => {
   const stream = spawn('jstest', ['--normal', '/dev/input/js0'])
 
-  const rl = readline.createInterface(stream.stdout);
-
   stream.on('exit', () => {
     console.error('jstest process exited');
     callbacks.onQuit();
   });
 
-  rl.on('line', (line: string) => {
-    const state = R.tryCatch(parseState, R.always(undefined))(line);
-    if (state) {
-      callbacks.onState(normalizeState(state));
-    } else {
-      if (line.search('error') >= 0) {
-        console.error(line)
+  let line = '';
+
+  stream.stdout.on('data', (data: Buffer) => {
+    const text = data.toString();
+    line += text;
+    if (line.length >= 200) {
+
+      const state = R.tryCatch(parseState, R.always(undefined))(line);
+      if (state) {
+        callbacks.onState(normalizeState(state));
+      } else {
+        if (line.search('error') >= 0) {
+          console.error(line)
+        }
       }
+
+      line = '';
     }
   });
-
-  rl.on('end', () => callbacks.onQuit());
 };
