@@ -1,13 +1,13 @@
 import * as R from 'ramda';
 
 import '../bot';
-import { buildXpadStream, toXboxState, applyDeadzone } from 'src/xpad';
+import { buildXpadStream, normalizeState, applyDeadzone } from 'src/xpad';
 
 
 const run = async () => {
   buildXpadStream({
     onState: R.pipe(
-      toXboxState,
+      normalizeState,
       applyDeadzone(0.15),
       console.log,
     ),

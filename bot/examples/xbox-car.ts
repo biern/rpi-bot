@@ -1,11 +1,12 @@
 import * as R from 'ramda';
 
 import '../bot';
-import { buildXpadStream, toXboxState, applyDeadzone, XPadState } from 'src/xpad';
+import { XPadState } from 'src/xpad';
 import { towerPro, dc50hz } from 'src/peripheries';
 import { createServo, setAngle } from 'src/servo';
 import { createABController } from 'src/dc';
 import { setMultiAxesDCPower } from 'src/controls';
+import { buildSteeringStream } from 'src/stream';
 
 
 const steeringServo = createServo(towerPro, 18);
@@ -21,14 +22,7 @@ const steer = (state: XPadState) => {
 
 
 const run = async () => {
-  buildXpadStream({
-    onState: R.pipe(
-      toXboxState,
-      applyDeadzone(0.15),
-      steer,
-    ),
-    onQuit: () => process.exit(1),
-  });
+  buildSteeringStream().subscribe(steer);
 }
 
 

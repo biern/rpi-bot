@@ -65,7 +65,7 @@ export const parseState = (state: string): XPadState => {
 };
 
 
-export const toXboxState = (state: XPadState): XPadState => {
+export const normalizeState = (state: XPadState): XPadState => {
   return R.pipe<XPadState, XPadState, XPadState>(
     R.evolve({
       axes: R.map((value: number) => value / 32767) as any,
@@ -110,7 +110,7 @@ export const buildXpadStream = (callbacks: {
   rl.on('line', (line: string) => {
     const state = R.tryCatch(parseState, R.always(undefined))(line);
     if (state) {
-      callbacks.onState(state);
+      callbacks.onState(normalizeState(state));
     } else {
       if (line.search('error') >= 0) {
         console.error(line)
