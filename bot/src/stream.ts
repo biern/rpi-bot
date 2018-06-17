@@ -52,13 +52,20 @@ export const toEvents = (
 ): Rx.Observable<SteeringEvents> => {
   const getEvents = (previous: XPadState, current: XPadState) => {
     const axesEvents = R.reduce((events, [id, value]) => {
-      if ((previous as any).axes[id] !== value) {
+      if ((previous.axes as any)[id] !== value) {
         return R.append({ kind: 'axis', id, value }, events);
       }
       return events;
     }, [] as Event[], R.toPairs(current.axes));
 
-    return axesEvents;
+    const buttonEvents = R.reduce((events, [id, value]) => {
+      if ((previous.buttons as any)[id] !== value) {
+        return R.append({ kind: 'button', id, value }, events);
+      }
+      return events;
+    }, [] as Event[], R.toPairs(current.buttons));
+
+    return axesEvents.concat(buttonEvents);
   }
 
   return stateStream.pipe(
